@@ -17,13 +17,87 @@
 			<h1 id="logo">출국장 현황</h1>
 		</div>
 		<div data-role="content" class="content">
-			<br>
 			<h4></h4>
-			<br><br>
-			<div class="depart-su"></div>
+			<ul data-role="listview" class ="depart-su"></ul>
 		</div>
 	</div>
 	<script>
+		$(function () {
+		var Key = "KehbMhlFG3KGdp3v76%2FVICpD7bds9tq%2FaNGPun%2BSvoB6mepqVo4nFCWftuBel6QC7Yfh3lM3zxTim2nBzeaXpA%3D%3D";
+		var url = 'http://openapi.airport.kr/openapi/service/StatusOfDepartures/getDeparturesCongestion'; /*URL*/
+        url += '?' + encodeURIComponent('ServiceKey') + '='+ Key; /*Service Key*/
+        url += '&' + encodeURIComponent('terno') + '=' + encodeURIComponent('1'); /*터미널 구분 1: 1터미널 */
+
+		function bakImg(n) {
+			var bak; var bakImg = "";
+			if (n < 100) { return ""; }
+			bak = parseInt( n / 100 );
+			for (let i = 0; i < bak; i++) {
+				bakImg += "<img src='./img/people-bak.png' width='40' height='40'>";
+			}
+			return bakImg;
+		}
+
+		function sipImg(n) {
+			var sip; var sipImg = "";
+			if (n >= 100) {
+				var bak = parseInt(n / 100);
+				n -= (bak * 100);
+			}
+			if (n < 10) { return ""; }
+			sip = parseInt( n / 10 );
+			for (let i = 0; i < sip; i++) {
+				sipImg += "<img src='./img/people-sip.png' width='40' height='30'>";
+			}
+			return sipImg;
+		}
+
+		function info(data) {
+			var res = $(data).find("item");
+			var gateinfo1 = parseInt($(res).find("gateinfo1").text());
+			var gateinfo2 = parseInt($(res).find("gateinfo2").text());
+			var gateinfo3 = parseInt($(res).find("gateinfo3").text());
+			var gateinfo4 = parseInt($(res).find("gateinfo4").text());
+			
+			var list = 
+			"<li>" + bakImg(gateinfo1) + sipImg(gateinfo1) + gateinfo1 + "명" + "<li>" +
+			"<li>" + bakImg(gateinfo2) + sipImg(gateinfo2) + gateinfo2 + "명" + "<li>" +
+			"<li>" + bakImg(gateinfo3) + sipImg(gateinfo3) + gateinfo3 + "명" + "<li>" +
+			"<li>" + bakImg(gateinfo4) + sipImg(gateinfo4) + gateinfo4 + "명" + "<li>";
+
+			$(".content ul").html(list);
+			// text와 html의 차이점
+			// text는 html도 글씨로 인식하고 html은 태그로 인식
+		}
+
+		function time(data) {
+		console.log(data);
+		var res = $(data).find("item");
+		var cgtdt = $(res).find("cgtdt").text();
+		var cgthm = $(res).find("cgthm").text();
+		//날짜
+		var year = cgtdt.substring(0,4);
+		var mouth = cgtdt.substring(4,6);
+		var day = cgtdt.substring(6,8);
+		var hour = cgthm.substring(0,2);
+		var minute = cgthm.substring(2,4);
+		var time = year + "년" + mouth + "월" + day + "일" + hour + "시" + minute + "분 기준";
+		
+		$(".content h4").text(time);
+		info(data);
+		}
+
+		function request() {
+			$.ajax({
+				url : url,
+				success : function(data) {
+					time(data);
+				}
+			});
+		}
+		request();
+		});
+		
 	</script>
 </body>
 </html>
